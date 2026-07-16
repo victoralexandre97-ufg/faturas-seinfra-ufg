@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEINFRA/UFG - Faturas de Energia</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header>
+        <div>
+            <div class="logo-name">SEINFRA/UFG</div>
+            <div class="logo-sub">Painel de Faturas de Energia</div>
+        </div>
+        <div style="display: flex; gap: 16px; align-items: center;">
+            <div class="status-badge">
+                <div class="pulse-dot"></div> DADOS ATIVOS
+            </div>
+            <div style="text-align: right;">
+                <div class="clock-time" id="clock-time">00:00</div>
+                <div class="clock-date" id="clock-date">SEG, 01 JAN</div>
+            </div>
+        </div>
+    </header>
+
+    <div class="slides-container" id="slides-container">
+        <!-- Slide 1: Visão Geral -->
+        <div class="sg-slide active" id="slide-1">
+            <div class="slide-title fade-up-1">VISÃO GERAL DO CONSUMO E GASTOS</div>
+            
+            <div class="kpi-row fade-up-2">
+                <div class="kpi-card c-blue">
+                    <div class="icon-box">📋</div>
+                    <div class="kpi-label">Qtd. Faturas (Mês)</div>
+                    <div class="kpi-value" id="kpi-qtd-faturas">0</div>
+                    <div class="kpi-sub">Faturas processadas</div>
+                </div>
+                <div class="kpi-card c-cyan">
+                    <div class="icon-box">⚡</div>
+                    <div class="kpi-label">Consumo Total (kWh)</div>
+                    <div class="kpi-value" id="kpi-consumo">0</div>
+                    <div class="kpi-sub">Mês atual</div>
+                </div>
+                <div class="kpi-card c-warn">
+                    <div class="icon-box">💰</div>
+                    <div class="kpi-label">Valor Total (R$)</div>
+                    <div class="kpi-value" id="kpi-valor">R$ 0,00</div>
+                    <div class="kpi-sub">Custo mensal</div>
+                </div>
+                <div class="kpi-card c-danger">
+                    <div class="icon-box">🔴</div>
+                    <div class="kpi-label">Maior Fatura (R$)</div>
+                    <div class="kpi-value" id="kpi-maior-fatura">R$ 0,00</div>
+                    <div class="kpi-sub">Neste mês</div>
+                </div>
+            </div>
+
+            <div class="content-row fade-up-3">
+                <div class="content-card">
+                    <div class="card-title">Evolução de Custos Mensais</div>
+                    <div class="card-subtitle">Últimos 12 meses</div>
+                    <div class="chart-container">
+                        <canvas id="chart-evolucao"></canvas>
+                    </div>
+                </div>
+                <div class="content-card">
+                    <div class="card-title">Top 5 Unidades (Custo)</div>
+                    <div class="card-subtitle">Mês atual</div>
+                    <div style="flex:1; overflow-y:auto; margin-top:10px;">
+                        <table id="table-top-unidades">
+                            <thead>
+                                <tr>
+                                    <th>Unidade Consumidora</th>
+                                    <th style="text-align:right">Valor (R$)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- JS Injected -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 2: Detalhamento -->
+        <div class="sg-slide" id="slide-2">
+            <div class="slide-title fade-up-1">DETALHAMENTO POR CLASSIFICAÇÃO</div>
+            
+            <div class="content-row fade-up-2">
+                <div class="content-card">
+                    <div class="card-title">Distribuição por Grupo Tarifário</div>
+                    <div class="chart-container">
+                        <canvas id="chart-grupos"></canvas>
+                    </div>
+                </div>
+                <div class="content-card">
+                    <div class="card-title">Composição da Fatura</div>
+                    <div class="chart-container">
+                        <canvas id="chart-composicao"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div style="display:flex; gap: 8px;" id="slide-dots">
+            <!-- Dots injected by JS -->
+        </div>
+        <div style="font-size: 11px; font-style: italic; color: var(--text3);">
+            ATUALIZADO EM TEMPO REAL • SISTEMA SEINFRA
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
