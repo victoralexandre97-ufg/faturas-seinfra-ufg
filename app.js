@@ -26,6 +26,19 @@ slides.forEach((_, i) => {
     dot.style.animation = 'none';
     dot.style.backgroundColor = i === 0 ? 'var(--cyan)' : 'var(--border2)';
     dot.style.transition = 'all 0.3s ease';
+    dot.dataset.index = i;
+    dot.addEventListener('click', () => {
+        // Deactivate current slide
+        slides[currentSlide].classList.remove('active');
+        slideDotsContainer.children[currentSlide].style.backgroundColor = 'var(--border2)';
+        slideDotsContainer.children[currentSlide].style.transform = 'scale(1)';
+        // Update currentSlide
+        currentSlide = i;
+        // Activate selected slide
+        slides[currentSlide].classList.add('active');
+        slideDotsContainer.children[currentSlide].style.backgroundColor = 'var(--cyan)';
+        slideDotsContainer.children[currentSlide].style.transform = 'scale(1.3)';
+    });
     slideDotsContainer.appendChild(dot);
 });
 

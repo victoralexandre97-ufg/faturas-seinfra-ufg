@@ -1,0 +1,53 @@
+import pandas as pd
+import glob
+import json
+import unicodedata
+import re
+import os
+
+def normalize_column_name(col):
+    col = str(col).strip().upper()
+    col = ''.join(c for c in unicodedata.normalize('NFD', col) if unicodedata.category(c) != 'Mn')
+    col = col.replace('%', 'PERCENTUAL')
+    col = re.sub(r'[^A-Z0-9]+', '_', col)
+    return col.strip('_')
+
+def main():
+    # Find all .xlsx files in the repository
+    files = glob.glob('*.xlsx')
+    if not files:
+        print("Nenhum arquivo .xlsx encontrado no repositório.")
+        return
+
+    # Ensure output directory exists
+    os.makedirs('dados', exist_ok=True)
+
+    for file_path in files:
+        print(f"Lendo o arquivo: {file_path}")
+        try:
+            df = pd.read_excel(file_path)  # pandas infers appropriate engine
+        except Exception as e:
+            print(f"Erro ao ler o arquivo {file_path}: {e}")
+            continue
+
+        # Discard any unnamed column (e.g., the first blank column "Unnamed: 0")
+        df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
+
+        # Normalize column names
+        df.columns = [normalize_column_name(c) for c in df.columns]
+
+        # Replace NaNs with None for valid JSON nulls
+        df = df.astype(object).where(pd.notnull(df), None)
+
+        data = df.to_dict(orient='records')
+
+        # Create output file name based on Excel file name
+        base_name = os.path.splitext(os.path.basename(file_path))[0]
+        output_file = os.path.join('dados', f"{base_name}.json")
+        with open(output_file, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+
+        print(f"Arquivo {output_file} gerado com sucesso!")
+
+if __name__ == "__main__":
+    main()
