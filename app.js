@@ -88,19 +88,7 @@ async function init() {
             const addr = addressMap.get(String(f.id_uc));
             if (addr) f._address = addr;
         });
-        // Build address map
-        addressMap.clear();
-        addressData.forEach(addr => {
-            const keyNew = String(addr.NUMERO_UNIDADE_CONSUMIDORA_NOVO);
-            const keyOld = String(addr.NUMERO_UNIDADE_CONSUMIDORA_ANTIGO);
-            if (keyNew) addressMap.set(keyNew, addr);
-            else if (keyOld) addressMap.set(keyOld, addr);
-        });
-        // Enrich invoices with address reference
-        faturas.forEach(f => {
-            const addr = addressMap.get(String(f.id_uc));
-            if (addr) f._address = addr;
-        });
+// Duplicated addressMap construction removed
 
 
         if(!faturas || faturas.length === 0) return;
@@ -256,6 +244,35 @@ async function init() {
 
     } catch (e) {
         console.error('Error loading faturas:', e);
+
+        // Initialize Leaflet map for slide 3
+        function initMap() {
+            if (!addressMap || addressMap.size === 0) {
+                console.warn('Mapa não pode ser inicializado: nenhum endereço disponível');
+                return;
+            }
+            // Central default view (Brasil) – ajuste automático se houver marcadores
+            const map = L.map('map').setView([-15.7942, -47.8822], 4);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap contributors',
+                maxZoom: 18,
+            }).addTo(map);
+            // Adicionar marcadores para cada fatura que possua coordenadas
+            faturas.forEach(f => {
+                const addr = f._address;
+                if (addr && addr.LATITUDE && addr.LONGITUDE) {
+                    const lat = Number(addr.LATITUDE);
+                    const lng = Number(addr.LONGITUDE);
+                    if (!isNaN(lat) && !isNaN(lng)) {
+                        const marker = L.marker([lat, lng]).addTo(map);
+                        const popupContent = `UC ${f.id_uc}<br>Valor: ${formatCurrency(f.valor_total)}`;
+                        marker.bindPopup(popupContent);
+                    }
+                }
+            });
+        }
+        // Expor a função para que o clique do slide 3 a invoque
+        window.initMap = initMap;
     }
 }
 
