@@ -5,6 +5,8 @@ Chart.defaults.borderColor = '#252535';
 
 const formatCurrency = (val) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val || 0);
 const formatNumber = (val) => new Intl.NumberFormat('pt-BR').format(val || 0);
+let faturas = [];
+const addressMap = new Map();
 
 // Clock update
 setInterval(() => {
@@ -62,48 +64,44 @@ setInterval(() => {
 // Data Fetching and Chart Rendering
 async function init() {
     try {
-        // Fetch invoices and address data
+        // Busca as faturas e os dados de endereço
         const [resF, resAddr] = await Promise.all([
-            fetch('dados/f_2026.json'),
-            fetch('dados/d_Enderecos.json')
+            fetch('./dados/f_2026.json'),
+            fetch('./dados/d_Enderecos.json')
         ]);
         const dataF = await resF.json();
+        console.log('Dados f_2026 carregados:', dataF);
         const addressData = await resAddr.json();
-        const faturas = dataF['f_Faturas'];
-        // Build address map (new consumer number → address object)
-        const addressMap = new Map();
+        console.log('Dados d_Enderecos carregados:', addressData);
+        faturas = dataF['f_Faturas'];
+        // Construir mapa de endereços
+        addressMap.clear();
         addressData.forEach(addr => {
             const keyNew = String(addr.NUMERO_UNIDADE_CONSUMIDORA_NOVO);
             const keyOld = String(addr.NUMERO_UNIDADE_CONSUMIDORA_ANTIGO);
             if (keyNew) addressMap.set(keyNew, addr);
             else if (keyOld) addressMap.set(keyOld, addr);
         });
-
-// ---------- Map Initialization (Slide 3) ----------
-let mapInitialized = false;
-function initMap() {
-    if (mapInitialized) return; // avoid duplicate init
-    const map = L.map('map').setView([-16.6, -49.2], 9);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
-    // Add a marker for each invoice that has address info
-    faturas.forEach(f => {
-        if (f._address && f._address.LATITUDE && f._address.LONGITUDE) {
-            const lat = f._address.LATITUDE;
-            const lng = f._address.LONGITUDE;
-            const popupContent = `<b>${f._address.NOME_LOCAL}</b><br>Valor: ${formatCurrency(f.valor_total)}`;
-            L.marker([lat, lng]).addTo(map).bindPopup(popupContent);
-        }
-    });
-    mapInitialized = true;
-}
-
+        console.log('Mapa de endereços construído, tamanho:', addressMap.size);
+        // Enriquecer faturas com referência ao endereço
+        faturas.forEach(f => {
+            const addr = addressMap.get(String(f.id_uc));
+            if (addr) f._address = addr;
+        });
+        // Build address map
+        addressMap.clear();
+        addressData.forEach(addr => {
+            const keyNew = String(addr.NUMERO_UNIDADE_CONSUMIDORA_NOVO);
+            const keyOld = String(addr.NUMERO_UNIDADE_CONSUMIDORA_ANTIGO);
+            if (keyNew) addressMap.set(keyNew, addr);
+            else if (keyOld) addressMap.set(keyOld, addr);
+        });
         // Enrich invoices with address reference
         faturas.forEach(f => {
             const addr = addressMap.get(String(f.id_uc));
             if (addr) f._address = addr;
         });
+
 
         if(!faturas || faturas.length === 0) return;
 
