@@ -9,12 +9,12 @@ let faturas = [];
 const addressMap = new Map();
 
 // Clock update
+const fullDayNames = ['DOMINGO','SEGUNDA-FEIRA','TERÇA-FEIRA','QUARTA-FEIRA','QUINTA-FEIRA','SEXTA-FEIRA','SÁBADO'];
+const fullMonthNames = ['JANEIRO','FEVEREIRO','MARÇO','ABRIL','MAIO','JUNHO','JULHO','AGOSTO','SETEMBRO','OUTUBRO','NOVEMBRO','DEZEMBRO'];
 setInterval(() => {
     const now = new Date();
-    document.getElementById('clock-time').textContent = now.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
-    const days = ['DOM','SEG','TER','QUA','QUI','SEX','SÁB'];
-    const months = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'];
-    document.getElementById('clock-date').textContent = `${days[now.getDay()]}, ${String(now.getDate()).padStart(2, '0')} ${months[now.getMonth()]}`;
+    document.getElementById('clock-time').textContent = now.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit', second:'2-digit'});
+    document.getElementById('clock-date').textContent = `${fullDayNames[now.getDay()]}, ${String(now.getDate()).padStart(2, '0')} DE ${fullMonthNames[now.getMonth()]} DE ${now.getFullYear()}`;
 }, 1000);
 
 // Slideshow logic
@@ -75,7 +75,8 @@ async function init() {
         console.log('Dados f_2026 carregados:', dataF);
         const addressData = await resAddr.json();
         console.log('Dados d_Enderecos carregados:', addressData);
-        faturas = dataF['f_Faturas'];
+        // Bug #1 fix: f_2026.json é uma lista plana (não um dict com chave 'f_Faturas')
+        faturas = Array.isArray(dataF) ? dataF : (dataF['f_Faturas'] || []);
         // Construir mapa de endereços
         addressMap.clear();
         addressData.forEach(addr => {
@@ -87,7 +88,8 @@ async function init() {
         console.log('Mapa de endereços construído, tamanho:', addressMap.size);
         // Enriquecer faturas com referência ao endereço
         faturas.forEach(f => {
-            const addr = addressMap.get(String(f.id_uc));
+            // Bug #2 fix: chaves são UPPER_CASE no JSON gerado pelo convert_excel.py
+            const addr = addressMap.get(String(f.ID_UC));
             if (addr) f._address = addr;
         });
 // Duplicated addressMap construction removed
@@ -98,14 +100,14 @@ async function init() {
         // Process KPIs
         const latestMonthFaturas = faturas; // In a real scenario, filter by the latest `referencia_mes_ano`
         const totalFaturas = latestMonthFaturas.length;
-        // Total consumption across all four fields
+        // Total consumption across all four fields (UPPER_CASE keys)
         const totalConsumo = latestMonthFaturas.reduce((acc, curr) =>
-            acc + (curr.CONSUMO_quantidade || 0) +
-            (curr.CONSUMO_P_quantidade || 0) +
-            (curr.CONSUMO_FP_quantidade || 0) +
-            (curr.CONSUMO_HR_quantidade || 0), 0);
-        const totalValor = latestMonthFaturas.reduce((acc, curr) => acc + (curr.valor_total || 0), 0);
-        const maxValor = Math.max(...latestMonthFaturas.map(f => f.valor_total || 0));
+            acc + (curr.CONSUMO_QUANTIDADE || 0) +
+            (curr.CONSUMO_P_QUANTIDADE || 0) +
+            (curr.CONSUMO_FP_QUANTIDADE || 0) +
+            (curr.CONSUMO_HR_QUANTIDADE || 0), 0);
+        const totalValor = latestMonthFaturas.reduce((acc, curr) => acc + (curr.VALOR_TOTAL || 0), 0);
+        const maxValor = Math.max(...latestMonthFaturas.map(f => f.VALOR_TOTAL || 0));
 
         document.getElementById('kpi-qtd-faturas').textContent = totalFaturas;
         document.getElementById('kpi-consumo').textContent = formatNumber(totalConsumo);
@@ -118,13 +120,13 @@ async function init() {
         document.getElementById('card-qtd-faturas').textContent = totalFaturas;
 
         // Chart 1: Evolução
-        // Aggregate by mes_ano
+        // Aggregate by mes_ano (UPPER_CASE keys)
         const evolution = {};
         faturas.forEach(f => {
-            const mes = f.referencia_mes_ano;
+            const mes = f.REFERENCIA_MES_ANO;
             if(mes) {
                 if(!evolution[mes]) evolution[mes] = 0;
-                evolution[mes] += f.valor_total || 0;
+                evolution[mes] += f.VALOR_TOTAL || 0;
             }
         });
         const labelsEvo = Object.keys(evolution).sort().slice(-12);
@@ -174,16 +176,16 @@ async function init() {
             }
         });
 
-        // Top 5 Unidades
+        // Top 5 Unidades (UPPER_CASE keys)
         const unidades = {};
         faturas.forEach(f => {
-            const uc = f.id_uc;
+            const uc = f.ID_UC;
             if(uc) {
                 if(!unidades[uc]) unidades[uc] = 0;
-                unidades[uc] += f.valor_total || 0;
+                unidades[uc] += f.VALOR_TOTAL || 0;
             }
         });
-        const top5 = Object.entries(unidades).sort((a,b) => b[1] - a[1]).slice(0, 5);
+        const top5 = Object.entries(unidades).sort((a,b) => b[1]-a[1]).slice(0, 5);
         const tbody = document.querySelector('#table-top-unidades tbody');
         top5.forEach(([uc, val]) => {
             const tr = document.createElement('tr');
@@ -191,12 +193,12 @@ async function init() {
             tbody.appendChild(tr);
         });
 
-        // Chart 2: Distribuição por Grupo
+        // Chart 2: Distribuição por Grupo (UPPER_CASE keys)
         const grupos = {};
         faturas.forEach(f => {
-            const g = f.grupo || 'Outros';
+            const g = f.GRUPO || 'Outros';
             if(!grupos[g]) grupos[g] = 0;
-            grupos[g] += f.valor_total || 0;
+            grupos[g] += f.VALOR_TOTAL || 0;
         });
         new Chart(document.getElementById('chart-grupos'), {
             type: 'doughnut',
@@ -217,9 +219,10 @@ async function init() {
         });
 
         // Chart 3: Composição (Impostos vs Consumo etc)
-        const totalIcms = latestMonthFaturas.reduce((acc, curr) => acc + (curr.valor_icms || 0), 0);
-        const totalCofins = latestMonthFaturas.reduce((acc, curr) => acc + (curr.valor_cofins || 0), 0);
-        const totalPis = latestMonthFaturas.reduce((acc, curr) => acc + (curr.pis_valor || 0), 0);
+        // UPPER_CASE keys for tax fields
+        const totalIcms = latestMonthFaturas.reduce((acc, curr) => acc + (curr.VALOR_ICMS || 0), 0);
+        const totalCofins = latestMonthFaturas.reduce((acc, curr) => acc + (curr.VALOR_COFINS || 0), 0);
+        const totalPis = latestMonthFaturas.reduce((acc, curr) => acc + (curr.PIS_VALOR || 0), 0);
         const baseLiquida = totalValor - (totalIcms + totalCofins + totalPis);
 
         new Chart(document.getElementById('chart-composicao'), {
@@ -244,9 +247,6 @@ async function init() {
             }
         });
 
-    } catch (e) {
-        console.error('Error loading faturas:', e);
-    }
         // Initialize Leaflet map for slide 3
         function initMap() {
             if (!addressMap || addressMap.size === 0) {
@@ -267,7 +267,7 @@ async function init() {
                     const lng = Number(addr.LONGITUDE);
                     if (!isNaN(lat) && !isNaN(lng)) {
                         const marker = L.marker([lat, lng]).addTo(map);
-                        const popupContent = `UC ${f.id_uc}<br>Valor: ${formatCurrency(f.valor_total)}`;
+                        const popupContent = `UC ${f.ID_UC}<br>Valor: ${formatCurrency(f.VALOR_TOTAL)}`;
                         marker.bindPopup(popupContent);
                     }
                 }
@@ -275,6 +275,9 @@ async function init() {
         }
         // Expor a função para que o clique do slide 3 a invoque
         window.initMap = initMap;
+
+    } catch (e) {
+        console.error('Error loading faturas:', e);
     }
 }
 

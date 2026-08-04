@@ -1,13 +1,16 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SEINFRA/UFG - Faturas de Energia</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-o9N1jvJ2U9+8U1+8J7yFf3pD8YF0GJX+Yc5Vt5LQ0vU=" crossorigin=""/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-o9N1jvJ2U9+8U1+8J7yFf3pD8YF0GJX+Yc5Vt5LQ0vU=" crossorigin="" />
 </head>
+
 <body>
     <header>
         <div>
@@ -19,8 +22,8 @@
                 <div class="pulse-dot"></div> DADOS ATIVOS
             </div>
             <div style="text-align: right;">
-                <div class="clock-time" id="clock-time">00:00</div>
-                <div class="clock-date" id="clock-date">SEG, 01 JAN</div>
+                <div class="clock-time" id="clock-time">00:00:00</div>
+                <div class="clock-date" id="clock-date">SEGUNDA-FEIRA, 01 DE JANEIRO DE 2026</div>
             </div>
         </div>
     </header>
@@ -29,7 +32,7 @@
         <!-- Slide 1: Visão Geral -->
         <div class="sg-slide active" id="slide-1">
             <div class="slide-title fade-up-1">VISÃO GERAL DO CONSUMO E GASTOS</div>
-            
+
             <div class="kpi-row fade-up-2">
                 <div class="kpi-card c-blue">
                     <div class="icon-box">📋</div>
@@ -88,7 +91,7 @@
         <!-- Slide 2: Detalhamento -->
         <div class="sg-slide" id="slide-2">
             <div class="slide-title fade-up-1">DETALHAMENTO POR CLASSIFICAÇÃO</div>
-            
+
             <div class="content-row fade-up-2">
                 <div class="content-card">
                     <div class="card-title">Distribuição por Grupo Tarifário</div>
@@ -154,4 +157,5 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="app.js"></script>
 </body>
+
 </html>

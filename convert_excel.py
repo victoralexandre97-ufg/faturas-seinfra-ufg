@@ -13,14 +13,11 @@ def normalize_column_name(col):
     return col.strip('_')
 
 def main():
-    # Find all .xlsx files in the repository
-    files = glob.glob(os.path.join('dados', '*.xlsx'))
+    # Find all .xlsx files in the repository root
+    files = glob.glob('*.xlsx')
     if not files:
         print("Nenhum arquivo .xlsx encontrado no repositório.")
         return
-
-    # Ensure output directory exists
-    os.makedirs('dados', exist_ok=True)
 
     for file_path in files:
         print(f"Lendo o arquivo: {file_path}")
@@ -41,9 +38,9 @@ def main():
 
         data = df.to_dict(orient='records')
 
-        # Create output file name based on Excel file name
+        # Output JSON na raiz do repositório (mesmo local dos .xlsx)
         base_name = os.path.splitext(os.path.basename(file_path))[0]
-        output_file = os.path.join('dados', f"{base_name}.json")
+        output_file = f"{base_name}.json"
         with open(output_file, 'w', encoding='utf-8') as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
 
