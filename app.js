@@ -38,6 +38,11 @@ slides.forEach((_, i) => {
         slides[currentSlide].classList.add('active');
         slideDotsContainer.children[currentSlide].style.backgroundColor = 'var(--cyan)';
         slideDotsContainer.children[currentSlide].style.transform = 'scale(1.3)';
+        // If we just switched to slide 3 (index 2), initialize map and ensure charts are ready
+        if (currentSlide === 2) {
+            if (typeof initMap === 'function') initMap();
+            // chart-faturas-tempo is already rendered during init(), just ensure it is visible
+        }
     });
     slideDotsContainer.appendChild(dot);
 });
@@ -57,16 +62,60 @@ setInterval(() => {
 // Data Fetching and Chart Rendering
 async function init() {
     try {
-        const res = await fetch('faturas_data.json');
-        const data = await res.json();
-        const faturas = data['f_Faturas'];
+        // Fetch invoices and address data
+        const [resF, resAddr] = await Promise.all([
+            fetch('dados/f_2026.json'),
+            fetch('dados/d_Enderecos.json')
+        ]);
+        const dataF = await resF.json();
+        const addressData = await resAddr.json();
+        const faturas = dataF['f_Faturas'];
+        // Build address map (new consumer number → address object)
+        const addressMap = new Map();
+        addressData.forEach(addr => {
+            const keyNew = String(addr.NUMERO_UNIDADE_CONSUMIDORA_NOVO);
+            const keyOld = String(addr.NUMERO_UNIDADE_CONSUMIDORA_ANTIGO);
+            if (keyNew) addressMap.set(keyNew, addr);
+            else if (keyOld) addressMap.set(keyOld, addr);
+        });
+
+// ---------- Map Initialization (Slide 3) ----------
+let mapInitialized = false;
+function initMap() {
+    if (mapInitialized) return; // avoid duplicate init
+    const map = L.map('map').setView([-16.6, -49.2], 9);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+    // Add a marker for each invoice that has address info
+    faturas.forEach(f => {
+        if (f._address && f._address.LATITUDE && f._address.LONGITUDE) {
+            const lat = f._address.LATITUDE;
+            const lng = f._address.LONGITUDE;
+            const popupContent = `<b>${f._address.NOME_LOCAL}</b><br>Valor: ${formatCurrency(f.valor_total)}`;
+            L.marker([lat, lng]).addTo(map).bindPopup(popupContent);
+        }
+    });
+    mapInitialized = true;
+}
+
+        // Enrich invoices with address reference
+        faturas.forEach(f => {
+            const addr = addressMap.get(String(f.id_uc));
+            if (addr) f._address = addr;
+        });
 
         if(!faturas || faturas.length === 0) return;
 
         // Process KPIs
         const latestMonthFaturas = faturas; // In a real scenario, filter by the latest `referencia_mes_ano`
         const totalFaturas = latestMonthFaturas.length;
-        const totalConsumo = latestMonthFaturas.reduce((acc, curr) => acc + (curr.CONSUMO_quantidade || 0), 0);
+        // Total consumption across all four fields
+        const totalConsumo = latestMonthFaturas.reduce((acc, curr) =>
+            acc + (curr.CONSUMO_quantidade || 0) +
+            (curr.CONSUMO_P_quantidade || 0) +
+            (curr.CONSUMO_FP_quantidade || 0) +
+            (curr.CONSUMO_HR_quantidade || 0), 0);
         const totalValor = latestMonthFaturas.reduce((acc, curr) => acc + (curr.valor_total || 0), 0);
         const maxValor = Math.max(...latestMonthFaturas.map(f => f.valor_total || 0));
 
@@ -74,6 +123,11 @@ async function init() {
         document.getElementById('kpi-consumo').textContent = formatNumber(totalConsumo);
         document.getElementById('kpi-valor').textContent = formatCurrency(totalValor);
         document.getElementById('kpi-maior-fatura').textContent = formatCurrency(maxValor);
+        // New cards for slide 3
+        document.getElementById('card-valor-faturas').textContent = formatCurrency(totalValor);
+        document.getElementById('card-consumo').textContent = formatNumber(totalConsumo);
+        document.getElementById('card-ucs').textContent = addressMap.size;
+        document.getElementById('card-qtd-faturas').textContent = totalFaturas;
 
         // Chart 1: Evolução
         // Aggregate by mes_ano
@@ -88,6 +142,7 @@ async function init() {
         const labelsEvo = Object.keys(evolution).sort().slice(-12);
         const dataEvo = labelsEvo.map(k => evolution[k]);
 
+        // Evolution chart (already on slide 1)
         new Chart(document.getElementById('chart-evolucao'), {
             type: 'bar',
             data: {
@@ -95,6 +150,28 @@ async function init() {
                 datasets: [{
                     data: dataEvo,
                     backgroundColor: dataEvo.map((_, i) => i === dataEvo.length - 1 ? '#00D4FF' : '#4B8BFF'),
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { display: false }, ticks: { color: '#FFF' } },
+                    y: { grid: { color: '#2A2A35' }, ticks: { color: '#C0C0D8' } }
+                }
+            }
+        });
+        // Time‑series chart for slide 3 (same data, different container)
+        new Chart(document.getElementById('chart-faturas-tempo'), {
+            type: 'bar',
+            data: {
+                labels: labelsEvo,
+                datasets: [{
+                    label: 'Valor (R$)',
+                    data: dataEvo,
+                    backgroundColor: '#4B8BFF',
                     borderRadius: 8
                 }]
             },

@@ -6,6 +6,7 @@
     <title>SEINFRA/UFG - Faturas de Energia</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-o9N1jvJ2U9+8U1+8J7yFf3pD8YF0GJX+Yc5Vt5LQ0vU=" crossorigin=""/>
 </head>
 <body>
     <header>
@@ -100,6 +101,42 @@
                     <div class="chart-container">
                         <canvas id="chart-composicao"></canvas>
                     </div>
+                </div>
+            </div>
+        </div>
+        <!-- Slide 3: Visão Geral -->
+        <div class="sg-slide" id="slide-3">
+            <div class="slide-title fade-up-1">VISÃO GERAL</div>
+            <div class="kpi-row fade-up-2">
+                <div class="kpi-card c-blue">
+                    <div class="icon-box">💰</div>
+                    <div class="kpi-label">Valor das Faturas (R$)</div>
+                    <div class="kpi-value" id="card-valor-faturas">R$ 0,00</div>
+                </div>
+                <div class="kpi-card c-cyan">
+                    <div class="icon-box">⚡</div>
+                    <div class="kpi-label">Quantidade de Energia Consumida (kWh)</div>
+                    <div class="kpi-value" id="card-consumo">0</div>
+                </div>
+                <div class="kpi-card c-warn">
+                    <div class="icon-box">🏢</div>
+                    <div class="kpi-label">Quantidade de UCs</div>
+                    <div class="kpi-value" id="card-ucs">0</div>
+                </div>
+                <div class="kpi-card c-danger">
+                    <div class="icon-box">📄</div>
+                    <div class="kpi-label">Quantidade de Faturas Analisadas</div>
+                    <div class="kpi-value" id="card-qtd-faturas">0</div>
+                </div>
+            </div>
+            <div class="content-row fade-up-3">
+                <div class="content-card" style="flex:1; height:500px;">
+                    <div class="card-title">Mapa das UCs</div>
+                    <div id="map" style="width:100%; height:100%;"></div>
+                </div>
+                <div class="content-card" style="flex:1; height:500px;">
+                    <div class="card-title">Valor das Faturas no Tempo (R$)</div>
+                    <canvas id="chart-faturas-tempo"></canvas>
                 </div>
             </div>
         </div>

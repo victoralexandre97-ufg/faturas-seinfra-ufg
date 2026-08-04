@@ -14,7 +14,7 @@ def normalize_column_name(col):
 
 def main():
     # Find all .xlsx files in the repository
-    files = glob.glob('*.xlsx')
+    files = glob.glob(os.path.join('dados', '*.xlsx'))
     if not files:
         print("Nenhum arquivo .xlsx encontrado no repositório.")
         return
