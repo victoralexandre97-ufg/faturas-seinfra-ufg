@@ -25,9 +25,11 @@ const slideDotsContainer = document.getElementById('slide-dots');
 slides.forEach((_, i) => {
     const dot = document.createElement('div');
     dot.className = 'pulse-dot';
-    dot.style.animation = 'none';
-    dot.style.backgroundColor = i === 0 ? 'var(--cyan)' : 'var(--border2)';
-    dot.style.transition = 'all 0.3s ease';
+    dot.style.width = '8px';
+    dot.style.height = '8px';
+    dot.style.backgroundColor = 'var(--cyan)';
+    dot.style.borderRadius = '50%';
+    dot.style.animation = 'pulse-dot 2s infinite';
     dot.dataset.index = i;
     dot.addEventListener('click', () => {
         // Deactivate current slide
@@ -68,7 +70,6 @@ async function init() {
         const [resF, resAddr] = await Promise.all([
             fetch('./f_2026.json'),
             fetch('./d_Enderecos.json')
-            fetch('./dados/d_Enderecos.json')
         ]);
         const dataF = await resF.json();
         console.log('Dados f_2026 carregados:', dataF);
@@ -245,7 +246,7 @@ async function init() {
 
     } catch (e) {
         console.error('Error loading faturas:', e);
-
+    }
         // Initialize Leaflet map for slide 3
         function initMap() {
             if (!addressMap || addressMap.size === 0) {
