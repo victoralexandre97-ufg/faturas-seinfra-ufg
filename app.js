@@ -66,7 +66,8 @@ async function init() {
     try {
         // Busca as faturas e os dados de endereço
         const [resF, resAddr] = await Promise.all([
-            fetch('./dados/f_2026.json'),
+            fetch('./f_2026.json'),
+            fetch('./d_Enderecos.json')
             fetch('./dados/d_Enderecos.json')
         ]);
         const dataF = await resF.json();
