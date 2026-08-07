@@ -8,12 +8,22 @@ const formatNumber = (val) => new Intl.NumberFormat('pt-BR').format(val || 0);
 let faturas = [];
 const addressMap = new Map();
 
+function refreshMap() {
+    if (!window.map) return;
+    setTimeout(() => {
+        window.map.invalidateSize();
+        if (window.mapBounds && window.mapBounds.length > 0) {
+            window.map.fitBounds(window.mapBounds, { padding: [20, 20] });
+        }
+    }, 200);
+}
+
 // Clock update
-const fullDayNames = ['DOMINGO','SEGUNDA-FEIRA','TERÇA-FEIRA','QUARTA-FEIRA','QUINTA-FEIRA','SEXTA-FEIRA','SÁBADO'];
-const fullMonthNames = ['JANEIRO','FEVEREIRO','MARÇO','ABRIL','MAIO','JUNHO','JULHO','AGOSTO','SETEMBRO','OUTUBRO','NOVEMBRO','DEZEMBRO'];
+const fullDayNames = ['DOMINGO', 'SEGUNDA-FEIRA', 'TERÇA-FEIRA', 'QUARTA-FEIRA', 'QUINTA-FEIRA', 'SEXTA-FEIRA', 'SÁBADO'];
+const fullMonthNames = ['JANEIRO', 'FEVEREIRO', 'MARÇO', 'ABRIL', 'MAIO', 'JUNHO', 'JULHO', 'AGOSTO', 'SETEMBRO', 'OUTUBRO', 'NOVEMBRO', 'DEZEMBRO'];
 setInterval(() => {
     const now = new Date();
-    document.getElementById('clock-time').textContent = now.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit', second:'2-digit'});
+    document.getElementById('clock-time').textContent = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
     document.getElementById('clock-date').textContent = `${fullDayNames[now.getDay()]}, ${String(now.getDate()).padStart(2, '0')} DE ${fullMonthNames[now.getMonth()]} DE ${now.getFullYear()}`;
 }, 1000);
 
@@ -42,12 +52,7 @@ slides.forEach((_, i) => {
         slides[currentSlide].classList.add('active');
         slideDotsContainer.children[currentSlide].style.backgroundColor = 'var(--cyan)';
         slideDotsContainer.children[currentSlide].style.transform = 'scale(1.3)';
-        if (currentSlide === 2 && window.map) {
-            setTimeout(() => {
-                window.map.invalidateSize();
-                if (window.mapBounds && window.mapBounds.length > 0) window.map.fitBounds(window.mapBounds, { padding: [20, 20] });
-            }, 100);
-        }
+        if (currentSlide === 2) refreshMap();
     });
     slideDotsContainer.appendChild(dot);
 });
@@ -58,17 +63,12 @@ setInterval(() => {
     slideDotsContainer.children[currentSlide].style.transform = 'scale(1)';
 
     currentSlide = (currentSlide + 1) % slides.length;
-    
+
     slides[currentSlide].classList.add('active');
     slideDotsContainer.children[currentSlide].style.backgroundColor = 'var(--cyan)';
     slideDotsContainer.children[currentSlide].style.transform = 'scale(1.3)';
 
-    if (currentSlide === 2 && window.map) {
-        setTimeout(() => {
-            window.map.invalidateSize();
-            if (window.mapBounds && window.mapBounds.length > 0) window.map.fitBounds(window.mapBounds, { padding: [20, 20] });
-        }, 100);
-    }
+    if (currentSlide === 2) refreshMap();
 }, 15000); // 15s per slide
 
 // Data Fetching and Chart Rendering
@@ -101,10 +101,10 @@ async function init() {
             const addr = addressMap.get(cleanId);
             if (addr) f._address = addr;
         });
-// Duplicated addressMap construction removed
+        // Duplicated addressMap construction removed
 
 
-        if(!faturas || faturas.length === 0) return;
+        if (!faturas || faturas.length === 0) return;
 
         // Process KPIs
         const latestMonthFaturas = faturas; // In a real scenario, filter by the latest `referencia_mes_ano`
@@ -133,14 +133,14 @@ async function init() {
         const evolution = {};
         faturas.forEach(f => {
             const mes = f.REFERENCIA_MES_ANO;
-            if(mes) {
-                if(!evolution[mes]) evolution[mes] = 0;
+            if (mes) {
+                if (!evolution[mes]) evolution[mes] = 0;
                 evolution[mes] += f.VALOR_TOTAL || 0;
             }
         });
-        const monthOrder = { 'JAN':1, 'FEV':2, 'MAR':3, 'ABR':4, 'MAI':5, 'JUN':6, 'JUL':7, 'AGO':8, 'SET':9, 'OUT':10, 'NOV':11, 'DEZ':12 };
+        const monthOrder = { 'JAN': 1, 'FEV': 2, 'MAR': 3, 'ABR': 4, 'MAI': 5, 'JUN': 6, 'JUL': 7, 'AGO': 8, 'SET': 9, 'OUT': 10, 'NOV': 11, 'DEZ': 12 };
         const labelsEvo = Object.keys(evolution).sort((a, b) => {
-            if(!a || !b || !a.includes('/') || !b.includes('/')) return 0;
+            if (!a || !b || !a.includes('/') || !b.includes('/')) return 0;
             const [mA, yA] = a.toUpperCase().split('/');
             const [mB, yB] = b.toUpperCase().split('/');
             if (yA !== yB) return parseInt(yA) - parseInt(yB);
@@ -196,12 +196,12 @@ async function init() {
         const unidades = {};
         faturas.forEach(f => {
             const uc = f.ID_UC;
-            if(uc) {
-                if(!unidades[uc]) unidades[uc] = 0;
+            if (uc) {
+                if (!unidades[uc]) unidades[uc] = 0;
                 unidades[uc] += f.VALOR_TOTAL || 0;
             }
         });
-        const top5 = Object.entries(unidades).sort((a,b) => b[1]-a[1]).slice(0, 5);
+        const top5 = Object.entries(unidades).sort((a, b) => b[1] - a[1]).slice(0, 5);
         const tbody = document.querySelector('#table-top-unidades tbody');
         top5.forEach(([uc, val]) => {
             const tr = document.createElement('tr');
@@ -213,7 +213,7 @@ async function init() {
         const grupos = {};
         faturas.forEach(f => {
             const g = f.GRUPO || 'Outros';
-            if(!grupos[g]) grupos[g] = 0;
+            if (!grupos[g]) grupos[g] = 0;
             grupos[g] += f.VALOR_TOTAL || 0;
         });
         new Chart(document.getElementById('chart-grupos'), {
@@ -272,19 +272,14 @@ async function init() {
             maxZoom: 19
         }).addTo(map);
 
-        new ResizeObserver(() => {
-            map.invalidateSize();
-            if (window.mapBounds && window.mapBounds.length > 0) {
-                map.fitBounds(window.mapBounds, { padding: [20, 20] });
-            }
-        }).observe(document.getElementById('map'));
+        new ResizeObserver(() => refreshMap()).observe(document.getElementById('map'));
 
         const bounds = [];
         faturas.forEach(f => {
             const addr = f._address;
             if (addr && addr.LATITUDE && addr.LONGITUDE) {
-                const lat = Number(addr.LATITUDE);
-                const lng = Number(addr.LONGITUDE);
+                const lat = parseFloat(addr.LATITUDE);
+                const lng = parseFloat(addr.LONGITUDE);
                 if (!isNaN(lat) && !isNaN(lng)) {
                     const marker = L.marker([lat, lng]).addTo(map);
                     const nomeLocal = addr.NOME_LOCAL || addr.ENDERECO_REAL || 'Unidade Consumidora';
@@ -295,7 +290,7 @@ async function init() {
             }
         });
         window.mapBounds = bounds;
-        if (bounds.length > 0) map.fitBounds(bounds, { padding: [20, 20] });
+        refreshMap();
 
     } catch (e) {
         console.error('Error loading faturas:', e);

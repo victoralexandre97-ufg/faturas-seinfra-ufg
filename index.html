@@ -11,17 +11,6 @@
         integrity="sha256-o9N1jvJ2U9+8U1+8J7yFf3pD8YF0GJX+Yc5Vt5LQ0vU=" crossorigin="" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-    <style>
-        #map {
-            width: 100%;
-            height: 100%;
-            border-radius: 8px;
-        }
-
-        .leaflet-container {
-            background: var(--surface2);
-        }
-    </style>
 </head>
 
 <body>
@@ -40,12 +29,10 @@
             </div>
         </div>
     </header>
-
     <div class="slides-container" id="slides-container">
         <!-- Slide 1: Visão Geral -->
         <div class="sg-slide active" id="slide-1">
             <div class="slide-title fade-up-1">VISÃO GERAL DO CONSUMO E GASTOS</div>
-
             <div class="kpi-row fade-up-2">
                 <div class="kpi-card c-blue">
                     <div class="icon-box">📋</div>
@@ -72,7 +59,6 @@
                     <div class="kpi-sub">Neste mês</div>
                 </div>
             </div>
-
             <div class="content-row fade-up-3">
                 <div class="content-card">
                     <div class="card-title">Evolução de Custos Mensais</div>
@@ -100,11 +86,9 @@
                 </div>
             </div>
         </div>
-
         <!-- Slide 2: Detalhamento -->
         <div class="sg-slide" id="slide-2">
             <div class="slide-title fade-up-1">DETALHAMENTO POR CLASSIFICAÇÃO</div>
-
             <div class="content-row fade-up-2">
                 <div class="content-card">
                     <div class="card-title">Distribuição por Grupo Tarifário</div>
@@ -149,7 +133,8 @@
                 <div class="content-card" style="flex:1; height:500px;">
                     <div class="card-title">Mapa das UCs</div>
                     <div class="card-subtitle">Localização georreferenciada</div>
-                    <div class="chart-container" style="margin-top:10px; position: relative; width: 100%; height: 100%; overflow: hidden;">
+                    <div class="chart-container"
+                        style="margin-top:10px; position: relative; width: 100%; height: 100%; overflow: hidden;">
                         <div id="map" style="height: 100%; width: 100%; max-width: 100%; max-height: 100%;"></div>
                     </div>
                 </div>
@@ -162,7 +147,6 @@
             </div>
         </div>
     </div>
-
     <footer>
         <div style="display:flex; gap: 8px;" id="slide-dots">
             <!-- Dots injected by JS -->
@@ -171,8 +155,6 @@
             ATUALIZADO EM TEMPO REAL • SISTEMA SEINFRA
         </div>
     </footer>
-
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="app.js"></script>
 </body>
 
