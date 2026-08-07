@@ -42,7 +42,9 @@ slides.forEach((_, i) => {
         slides[currentSlide].classList.add('active');
         slideDotsContainer.children[currentSlide].style.backgroundColor = 'var(--cyan)';
         slideDotsContainer.children[currentSlide].style.transform = 'scale(1.3)';
-        // chart-faturas-tempo is already rendered during init(), just ensure it is visible
+        if (currentSlide === 2 && window.map) {
+            setTimeout(() => window.map.invalidateSize(), 100);
+        }
     });
     slideDotsContainer.appendChild(dot);
 });
@@ -57,6 +59,10 @@ setInterval(() => {
     slides[currentSlide].classList.add('active');
     slideDotsContainer.children[currentSlide].style.backgroundColor = 'var(--cyan)';
     slideDotsContainer.children[currentSlide].style.transform = 'scale(1.3)';
+
+    if (currentSlide === 2 && window.map) {
+        setTimeout(() => window.map.invalidateSize(), 100);
+    }
 }, 15000); // 15s per slide
 
 // Data Fetching and Chart Rendering
@@ -250,6 +256,32 @@ async function init() {
                 }
             }
         });
+
+        // Initialize Map
+        const map = L.map('map', { zoomControl: false }).setView([-16.68, -49.25], 11);
+        window.map = map;
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; OpenStreetMap &copy; CARTO',
+            subdomains: 'abcd',
+            maxZoom: 19
+        }).addTo(map);
+
+        const bounds = [];
+        faturas.forEach(f => {
+            const addr = f._address;
+            if (addr && addr.LATITUDE && addr.LONGITUDE) {
+                const lat = Number(addr.LATITUDE);
+                const lng = Number(addr.LONGITUDE);
+                if (!isNaN(lat) && !isNaN(lng)) {
+                    const marker = L.marker([lat, lng]).addTo(map);
+                    const nomeLocal = addr.NOME_LOCAL || addr.ENDERECO_REAL || 'Unidade Consumidora';
+                    const popupContent = `<strong>${nomeLocal}</strong><br>UC: ${f.ID_UC}<br>Valor Atual: ${formatCurrency(f.VALOR_TOTAL)}`;
+                    marker.bindPopup(popupContent);
+                    bounds.push([lat, lng]);
+                }
+            }
+        });
+        if (bounds.length > 0) map.fitBounds(bounds, { padding: [20, 20] });
 
     } catch (e) {
         console.error('Error loading faturas:', e);

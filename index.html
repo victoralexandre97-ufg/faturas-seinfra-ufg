@@ -9,6 +9,19 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-o9N1jvJ2U9+8U1+8J7yFf3pD8YF0GJX+Yc5Vt5LQ0vU=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <style>
+        #map {
+            width: 100%;
+            height: 100%;
+            border-radius: 8px;
+        }
+
+        .leaflet-container {
+            background: var(--surface2);
+        }
+    </style>
 </head>
 
 <body>
@@ -134,7 +147,11 @@
             </div>
             <div class="content-row fade-up-3">
                 <div class="content-card" style="flex:1; height:500px;">
-                    <!-- Mapa removido -->
+                    <div class="card-title">Mapa das UCs</div>
+                    <div class="card-subtitle">Localização georreferenciada</div>
+                    <div class="chart-container" style="margin-top:10px;">
+                        <div id="map"></div>
+                    </div>
                 </div>
                 <div class="content-card" style="flex:1; height:500px;">
                     <div class="card-title">Valor das Faturas no Tempo (R$)</div>
