@@ -172,6 +172,7 @@ async function init() {
         // Time‑series chart for slide 3 (same data, different container)
         new Chart(document.getElementById('chart-faturas-tempo'), {
             type: 'bar',
+            plugins: [ChartDataLabels],
             data: {
                 labels: labelsEvo,
                 datasets: [{
@@ -184,10 +185,31 @@ async function init() {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
+                plugins: {
+                    legend: { display: false },
+                    datalabels: {
+                        anchor: 'end',
+                        align: 'top',
+                        color: '#FFFFFF',
+                        font: {
+                            weight: 'bold',
+                            size: 11
+                        },
+                        formatter: function(value) {
+                            return new Intl.NumberFormat('pt-BR', {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                            }).format(value || 0);
+                        }
+                    }
+                },
                 scales: {
                     x: { grid: { display: false }, ticks: { color: '#FFF' } },
-                    y: { grid: { color: '#2A2A35' }, ticks: { color: '#C0C0D8' } }
+                    y: {
+                        grid: { color: '#2A2A35' },
+                        ticks: { color: '#C0C0D8' },
+                        grace: '10%'
+                    }
                 }
             }
         });
