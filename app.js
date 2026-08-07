@@ -61,6 +61,10 @@ setInterval(() => {
     slides[currentSlide].classList.add('active');
     slideDotsContainer.children[currentSlide].style.backgroundColor = 'var(--cyan)';
     slideDotsContainer.children[currentSlide].style.transform = 'scale(1.3)';
+
+    if (currentSlide === 2) {
+        if (typeof initMap === 'function') initMap();
+    }
 }, 15000); // 15s per slide
 
 // Data Fetching and Chart Rendering
@@ -80,16 +84,17 @@ async function init() {
         // Construir mapa de endereços
         addressMap.clear();
         addressData.forEach(addr => {
-            const keyNew = String(addr.NUMERO_UNIDADE_CONSUMIDORA_NOVO);
-            const keyOld = String(addr.NUMERO_UNIDADE_CONSUMIDORA_ANTIGO);
+            const keyNew = String(addr.NUMERO_UNIDADE_CONSUMIDORA_NOVO || '').replace(/\D/g, '');
+            const keyOld = String(addr.NUMERO_UNIDADE_CONSUMIDORA_ANTIGO || '').replace(/\D/g, '');
             if (keyNew) addressMap.set(keyNew, addr);
-            else if (keyOld) addressMap.set(keyOld, addr);
+            if (keyOld && keyOld !== keyNew) addressMap.set(keyOld, addr);
         });
         console.log('Mapa de endereços construído, tamanho:', addressMap.size);
         // Enriquecer faturas com referência ao endereço
         faturas.forEach(f => {
-            // Bug #2 fix: chaves são UPPER_CASE no JSON gerado pelo convert_excel.py
-            const addr = addressMap.get(String(f.ID_UC));
+            // Limpar formatação para encontrar a UC no map
+            const cleanId = String(f.ID_UC || '').replace(/\D/g, '');
+            const addr = addressMap.get(cleanId);
             if (addr) f._address = addr;
         });
 // Duplicated addressMap construction removed
@@ -254,18 +259,26 @@ async function init() {
             }
         });
 
+        let leafletMap = null;
         // Initialize Leaflet map for slide 3
         function initMap() {
             if (!addressMap || addressMap.size === 0) {
                 console.warn('Mapa não pode ser inicializado: nenhum endereço disponível');
                 return;
             }
-            // Central default view (Brasil) – ajuste automático se houver marcadores
-            const map = L.map('map').setView([-15.7942, -47.8822], 4);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; OpenStreetMap contributors',
-                maxZoom: 18,
-            }).addTo(map);
+            if (leafletMap) {
+                leafletMap.invalidateSize();
+                return;
+            }
+            // Central default view (Goiânia/UFG)
+            leafletMap = L.map('map').setView([-16.68, -49.25], 11);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+                subdomains: 'abcd',
+                maxZoom: 19
+            }).addTo(leafletMap);
+            
+            const bounds = [];
             // Adicionar marcadores para cada fatura que possua coordenadas
             faturas.forEach(f => {
                 const addr = f._address;
@@ -273,12 +286,15 @@ async function init() {
                     const lat = Number(addr.LATITUDE);
                     const lng = Number(addr.LONGITUDE);
                     if (!isNaN(lat) && !isNaN(lng)) {
-                        const marker = L.marker([lat, lng]).addTo(map);
-                        const popupContent = `UC ${f.ID_UC}<br>Valor: ${formatCurrency(f.VALOR_TOTAL)}`;
+                        const marker = L.marker([lat, lng]).addTo(leafletMap);
+                        const nomeLocal = addr.NOME_LOCAL || addr.ENDERECO_REAL || 'Unidade Consumidora';
+                        const popupContent = `<strong>${nomeLocal}</strong><br>UC: ${f.ID_UC}<br>Valor Atual: ${formatCurrency(f.VALOR_TOTAL)}`;
                         marker.bindPopup(popupContent);
+                        bounds.push([lat, lng]);
                     }
                 }
             });
+            if (bounds.length > 0) leafletMap.fitBounds(bounds, { padding: [20, 20] });
         }
         // Expor a função para que o clique do slide 3 a invoque
         window.initMap = initMap;
