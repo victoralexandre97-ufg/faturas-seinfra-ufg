@@ -119,7 +119,7 @@ async function init() {
         // New cards for slide 3
         document.getElementById('card-valor-faturas').textContent = formatCurrency(totalValor);
         document.getElementById('card-consumo').textContent = formatNumber(totalConsumo);
-        document.getElementById('card-ucs').textContent = addressMap.size;
+        document.getElementById('card-ucs').textContent = addressData.length;
         document.getElementById('card-qtd-faturas').textContent = totalFaturas;
 
         // Chart 1: Evolução
