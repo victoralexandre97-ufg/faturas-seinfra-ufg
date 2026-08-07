@@ -43,7 +43,10 @@ slides.forEach((_, i) => {
         slideDotsContainer.children[currentSlide].style.backgroundColor = 'var(--cyan)';
         slideDotsContainer.children[currentSlide].style.transform = 'scale(1.3)';
         if (currentSlide === 2 && window.map) {
-            setTimeout(() => window.map.invalidateSize(), 100);
+            setTimeout(() => {
+                window.map.invalidateSize();
+                if (window.mapBounds && window.mapBounds.length > 0) window.map.fitBounds(window.mapBounds, { padding: [20, 20] });
+            }, 100);
         }
     });
     slideDotsContainer.appendChild(dot);
@@ -61,7 +64,10 @@ setInterval(() => {
     slideDotsContainer.children[currentSlide].style.transform = 'scale(1.3)';
 
     if (currentSlide === 2 && window.map) {
-        setTimeout(() => window.map.invalidateSize(), 100);
+        setTimeout(() => {
+            window.map.invalidateSize();
+            if (window.mapBounds && window.mapBounds.length > 0) window.map.fitBounds(window.mapBounds, { padding: [20, 20] });
+        }, 100);
     }
 }, 15000); // 15s per slide
 
@@ -266,6 +272,13 @@ async function init() {
             maxZoom: 19
         }).addTo(map);
 
+        new ResizeObserver(() => {
+            map.invalidateSize();
+            if (window.mapBounds && window.mapBounds.length > 0) {
+                map.fitBounds(window.mapBounds, { padding: [20, 20] });
+            }
+        }).observe(document.getElementById('map'));
+
         const bounds = [];
         faturas.forEach(f => {
             const addr = f._address;
@@ -281,6 +294,7 @@ async function init() {
                 }
             }
         });
+        window.mapBounds = bounds;
         if (bounds.length > 0) map.fitBounds(bounds, { padding: [20, 20] });
 
     } catch (e) {
