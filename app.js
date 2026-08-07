@@ -204,10 +204,16 @@ async function init() {
                     }
                 },
                 scales: {
-                    x: { grid: { display: false }, ticks: { color: '#FFF' } },
+                    x: {
+                        grid: { display: false },
+                        border: { display: false },
+                        ticks: { color: '#FFF' }
+                    },
                     y: {
-                        grid: { color: '#2A2A35' },
-                        ticks: { color: '#C0C0D8' },
+                        grid: { display: false },
+                        //    color: '#2A2A35' },
+                        border: { display: false },
+                        ticks: { color: '#FFF' },
                         grace: '10%'
                     }
                 }
