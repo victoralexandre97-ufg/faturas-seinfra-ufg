@@ -129,7 +129,14 @@ async function init() {
                 evolution[mes] += f.VALOR_TOTAL || 0;
             }
         });
-        const labelsEvo = Object.keys(evolution).sort().slice(-12);
+        const monthOrder = { 'JAN':1, 'FEV':2, 'MAR':3, 'ABR':4, 'MAI':5, 'JUN':6, 'JUL':7, 'AGO':8, 'SET':9, 'OUT':10, 'NOV':11, 'DEZ':12 };
+        const labelsEvo = Object.keys(evolution).sort((a, b) => {
+            if(!a || !b || !a.includes('/') || !b.includes('/')) return 0;
+            const [mA, yA] = a.toUpperCase().split('/');
+            const [mB, yB] = b.toUpperCase().split('/');
+            if (yA !== yB) return parseInt(yA) - parseInt(yB);
+            return (monthOrder[mA] || 0) - (monthOrder[mB] || 0);
+        }).slice(-12);
         const dataEvo = labelsEvo.map(k => evolution[k]);
 
         // Evolution chart (already on slide 1)
