@@ -267,6 +267,21 @@ O mapa é um componente central do slide 3 e deve seguir estas regras sem exceç
 - Nunca deixar o mapa com tamanho fixo que impeça adaptação ao card
 - Se o mapa estiver em slide oculto, garantir revalidação visual quando ele voltar a ser exibido
 
+### Marcador de Obra (`customIcon`)
+
+Definido em `app.js` como `L.divIcon` (classe `custom-div-icon`), usado nos dois mapas:
+
+| Propriedade | Valor |
+|-------------|-------|
+| Formato | Círculo (`border-radius: 50%`) |
+| Tamanho | `16px × 16px` |
+| Cor de fundo | `--cyan` (`#00D4FF`) |
+| Borda | `2px solid #fff` |
+| Glow | `box-shadow: 0 0 10px var(--cyan)` |
+| Âncora | Centro do ponto (`iconAnchor: [8, 8]`) |
+
+O marcador é HTML inline no `divIcon`, permitindo customização livre (cor, tamanho, anel pulsante, rótulo numérico etc.).
+
 ---
 
 ## 8. Animações

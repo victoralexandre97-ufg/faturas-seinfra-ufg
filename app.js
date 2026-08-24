@@ -8,6 +8,18 @@ const formatNumber = (val) => new Intl.NumberFormat('pt-BR').format(val || 0);
 let faturas = [];
 const addressMap = new Map();
 
+function updateScreenSizeMode() {
+    const width = window.innerWidth;
+    const body = document.body;
+    body.classList.remove('tela-p', 'tela-pm', 'tela-m', 'tela-mg', 'tela-g');
+
+    if (width < 800) body.classList.add('tela-p');
+    else if (width < 1280) body.classList.add('tela-pm');
+    else if (width < 1600) body.classList.add('tela-m');
+    else if (width <= 2400) body.classList.add('tela-mg');
+    else body.classList.add('tela-g');
+}
+
 function refreshMap() {
     if (!window.map) return;
     setTimeout(() => {
@@ -26,6 +38,14 @@ setInterval(() => {
     document.getElementById('clock-time').textContent = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
     document.getElementById('clock-date').textContent = `${fullDayNames[now.getDay()]}, ${String(now.getDate()).padStart(2, '0')} DE ${fullMonthNames[now.getMonth()]} DE ${now.getFullYear()}`;
 }, 1000);
+
+window.addEventListener('resize', () => {
+    updateScreenSizeMode();
+    refreshMap();
+});
+
+document.addEventListener('DOMContentLoaded', updateScreenSizeMode);
+updateScreenSizeMode();
 
 // Slideshow logic
 const slides = document.querySelectorAll('.sg-slide');
@@ -300,7 +320,22 @@ async function init() {
             maxZoom: 19
         }).addTo(map);
 
-        new ResizeObserver(() => refreshMap()).observe(document.getElementById('map'));
+        const labelsPane = map.createPane('labelsPane');
+        labelsPane.style.zIndex = 450;
+        labelsPane.style.pointerEvents = 'none';
+        const addBrightLabels = () => {
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; OpenStreetMap &copy; CARTO',
+                subdomains: 'abcd',
+                pane: 'labelsPane'
+            }).addTo(map);
+        };
+        addBrightLabels();
+
+        const mapElement = document.getElementById('map');
+        if (mapElement && window.ResizeObserver) {
+            new ResizeObserver(() => refreshMap()).observe(mapElement);
+        }
 
         const bounds = [];
         faturas.forEach(f => {
@@ -309,7 +344,14 @@ async function init() {
                 const lat = parseFloat(addr.LATITUDE);
                 const lng = parseFloat(addr.LONGITUDE);
                 if (!isNaN(lat) && !isNaN(lng)) {
-                    const marker = L.marker([lat, lng]).addTo(map);
+                    const markerIcon = L.divIcon({
+                        className: 'custom-div-icon',
+                        html: '<div class="map-marker"></div>',
+                        iconSize: [16, 16],
+                        iconAnchor: [8, 8],
+                        popupAnchor: [0, -8]
+                    });
+                    const marker = L.marker([lat, lng], { icon: markerIcon }).addTo(map);
                     const nomeLocal = addr.NOME_LOCAL || addr.ENDERECO_REAL || 'Unidade Consumidora';
                     const popupContent = `<strong>${nomeLocal}</strong><br>UC: ${f.ID_UC}<br>Valor Atual: ${formatCurrency(f.VALOR_TOTAL)}`;
                     marker.bindPopup(popupContent);

@@ -21,6 +21,9 @@
   --danger: #FF4444;
   --blue: #4B8BFF;
   --purple: #9B59FF;
+
+  /* Escala de UI controlada por classe no body */
+  --scale-ui: 1;
 }
 
 * {
@@ -38,11 +41,32 @@ body {
   height: 100vh;
   display: flex;
   flex-direction: column;
+  --scale-ui: 1;
+}
+
+body.tela-p {
+  --scale-ui: 0.2;
+}
+
+body.tela-pm {
+  --scale-ui: 0.4;
+}
+
+body.tela-m {
+  --scale-ui: 0.6;
+}
+
+body.tela-mg {
+  --scale-ui: 1;
+}
+
+body.tela-g {
+  --scale-ui: 1.2;
 }
 
 /* Typography */
 .logo-name {
-  font-size: 22px;
+  font-size: clamp(18px, 1.35vw, 22px);
   font-weight: 800;
   color: var(--cyan);
   letter-spacing: -0.5px;
@@ -50,7 +74,7 @@ body {
 }
 
 .logo-sub {
-  font-size: 12px;
+  font-size: clamp(10px, 0.7vw, 12px);
   font-weight: 800;
   color: var(--text);
   text-transform: uppercase;
@@ -58,14 +82,18 @@ body {
 }
 
 .slide-title {
-  font-size: 16px;
+  font-size: clamp(14px, 1vw, 16px);
   font-weight: 800;
   color: var(--text);
   letter-spacing: 0.04em;
 }
 
+header > div:last-child {
+  gap: clamp(12px, 1vw, 16px) !important;
+}
+
 .kpi-label {
-  font-size: 13px;
+  font-size: clamp(11px, 0.85vw, 13px);
   font-weight: 800;
   color: var(--text2);
   text-transform: uppercase;
@@ -73,19 +101,19 @@ body {
 }
 
 .kpi-value {
-  font-size: 32px;
+  font-size: clamp(24px, 2vw, 32px);
   font-weight: 800;
   font-family: 'JetBrains Mono', monospace;
 }
 
 .kpi-sub {
-  font-size: 12px;
+  font-size: clamp(10px, 0.75vw, 12px);
   font-weight: 500;
   color: rgba(255, 255, 255, 0.7);
 }
 
 .card-title {
-  font-size: 18px;
+  font-size: clamp(16px, 1.1vw, 18px);
   font-weight: 800;
   color: #ffffff;
   letter-spacing: 0.01em;
@@ -105,7 +133,7 @@ body {
 }
 
 .card-subtitle {
-  font-size: 14px;
+  font-size: clamp(12px, 0.85vw, 14px);
   font-weight: 500;
   color: var(--text2);
 }
@@ -140,6 +168,7 @@ footer {
   justify-content: space-between;
   align-items: center;
   padding: 0 24px;
+  font-size: clamp(10px, 0.7vw, 11px);
 }
 
 .slides-container {
@@ -240,7 +269,7 @@ footer {
   background-color: rgba(0, 230, 118, 0.1);
   border: 1px solid rgba(0, 230, 118, 0.25);
   color: var(--ok);
-  font-size: 11px;
+  font-size: clamp(10px, 0.65vw, 11px);
   font-weight: 500;
   padding: 4px 8px;
   border-radius: 12px;
@@ -332,13 +361,13 @@ footer {
 /* Clock */
 .clock-time {
   font-family: 'JetBrains Mono';
-  font-size: 26px;
+  font-size: clamp(20px, 1.45vw, 26px);
   font-weight: 600;
   color: var(--text);
 }
 
 .clock-date {
-  font-size: 12px;
+  font-size: clamp(10px, 0.7vw, 12px);
   font-weight: 800;
   color: var(--text);
   text-transform: uppercase;
@@ -353,7 +382,7 @@ table {
 }
 
 th {
-  font-size: 13px;
+  font-size: clamp(11px, 0.8vw, 13px);
   font-weight: 800;
   color: var(--text2);
   text-transform: uppercase;
@@ -362,7 +391,7 @@ th {
 }
 
 td {
-  font-size: 15px;
+  font-size: clamp(13px, 0.95vw, 15px);
   font-weight: 400;
   color: var(--text);
   padding: 8px 10px;
@@ -384,4 +413,32 @@ td {
   background: var(--surface2) !important;
   width: 100% !important;
   height: 100% !important;
+}
+
+.leaflet-pane .bright-labels .leaflet-tile {
+  filter: brightness(2.2) contrast(1.15) saturate(0.6);
+}
+
+.custom-div-icon {
+  background: transparent;
+  border: none;
+}
+
+.custom-div-icon .map-marker {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--cyan);
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 10px var(--cyan);
+  position: relative;
+}
+
+.custom-div-icon .map-marker::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 212, 255, 0.35);
+  opacity: 0.65;
 }
