@@ -279,11 +279,11 @@ footer {
 }
 
 .pulse-dot {
-  width: 8px;
-  height: 8px;
-  background-color: var(--ok);
+  width: clamp(7px, 0.9vw, 11px);
+  height: clamp(7px, 0.9vw, 11px);
+  background-color: var(--border2);
   border-radius: 50%;
-  animation: pulse-dot 2s infinite;
+  transition: all 0.3s ease;
 }
 
 /* Animations */

@@ -52,43 +52,37 @@ const slides = document.querySelectorAll('.sg-slide');
 let currentSlide = 0;
 const slideDotsContainer = document.getElementById('slide-dots');
 
+function updateSlideDots(activeIndex) {
+    Array.from(slideDotsContainer.children).forEach((dot, index) => {
+        dot.style.backgroundColor = index === activeIndex ? 'var(--cyan)' : 'var(--border2)';
+        dot.style.transform = index === activeIndex ? 'scale(1.3)' : 'scale(1)';
+    });
+}
+
+function activateSlide(nextIndex) {
+    slides[currentSlide].classList.remove('active');
+    currentSlide = nextIndex;
+    slides[currentSlide].classList.add('active');
+    updateSlideDots(currentSlide);
+
+    if (currentSlide === 2) {
+        setTimeout(refreshMap, 100);
+    }
+}
+
 slides.forEach((_, i) => {
     const dot = document.createElement('div');
     dot.className = 'pulse-dot';
-    dot.style.width = '8px';
-    dot.style.height = '8px';
-    dot.style.backgroundColor = 'var(--cyan)';
-    dot.style.borderRadius = '50%';
-    dot.style.animation = 'pulse-dot 2s infinite';
+    dot.style.animation = 'none';
     dot.dataset.index = i;
-    dot.addEventListener('click', () => {
-        // Deactivate current slide
-        slides[currentSlide].classList.remove('active');
-        slideDotsContainer.children[currentSlide].style.backgroundColor = 'var(--border2)';
-        slideDotsContainer.children[currentSlide].style.transform = 'scale(1)';
-        // Update currentSlide
-        currentSlide = i;
-        // Activate selected slide
-        slides[currentSlide].classList.add('active');
-        slideDotsContainer.children[currentSlide].style.backgroundColor = 'var(--cyan)';
-        slideDotsContainer.children[currentSlide].style.transform = 'scale(1.3)';
-        if (currentSlide === 2) refreshMap();
-    });
+    dot.addEventListener('click', () => activateSlide(i));
     slideDotsContainer.appendChild(dot);
 });
 
+updateSlideDots(currentSlide);
+
 setInterval(() => {
-    slides[currentSlide].classList.remove('active');
-    slideDotsContainer.children[currentSlide].style.backgroundColor = 'var(--border2)';
-    slideDotsContainer.children[currentSlide].style.transform = 'scale(1)';
-
-    currentSlide = (currentSlide + 1) % slides.length;
-
-    slides[currentSlide].classList.add('active');
-    slideDotsContainer.children[currentSlide].style.backgroundColor = 'var(--cyan)';
-    slideDotsContainer.children[currentSlide].style.transform = 'scale(1.3)';
-
-    if (currentSlide === 2) refreshMap();
+    activateSlide((currentSlide + 1) % slides.length);
 }, 15000); // 15s per slide
 
 // Data Fetching and Chart Rendering
