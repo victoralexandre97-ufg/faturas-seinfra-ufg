@@ -293,10 +293,10 @@ Definido em `app.js` como `L.divIcon` (classe `custom-div-icon`), usado nos dois
 | Tamanho | `16px × 16px` |
 | Cor de fundo | `--cyan` (`#00D4FF`) |
 | Borda | `2px solid #fff` |
-| Glow | `box-shadow: 0 0 10px var(--cyan)` |
+| Glow | nenhum |
 | Âncora | Centro do ponto (`iconAnchor: [8, 8]`) |
 
-O marcador é HTML inline no `divIcon`, permitindo customização livre (cor, tamanho, anel pulsante, rótulo numérico etc.).
+O marcador é HTML inline no `divIcon`, permitindo customização livre. Neste dashboard, o ponto deve permanecer limpo: círculo azul com borda branca, sem halo ou sombra externa azul.
 
 ---
 
