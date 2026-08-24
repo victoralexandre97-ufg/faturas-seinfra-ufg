@@ -200,10 +200,26 @@ Regras base:
 - Linhas com separação sutil
 - Valores numéricos usam `.td-mono`
 
-### Navegação por dots
-- Gerada via JavaScript
-- Estado ativo usa `--cyan`
-- Estado inativo usa `--border2`
+### Dots de navegação de slides
+Os dots de navegação ficam no rodapé, dentro de `#slide-dots`, e permitem trocar manualmente entre os slides.
+
+#### Design
+- Container: flexbox com `gap: 8px`, posicionado no footer
+- Cada dot é um `<div class="pulse-dot">` criado dinamicamente por `app.js`
+- Tamanho: definido por `.pulse-dot` com `clamp(7px, 0.9vw, 11px)`
+- Formato: círculo com `border-radius: 50%`
+- A animação original de pulso da classe base é desativada inline com `animation: none`
+- Estado ativo: fundo `--cyan` e `transform: scale(1.3)`
+- Estado inativo: fundo `--border2` e escala normal
+- Transição visual: `all 0.3s ease`
+
+#### Lógica em `app.js`
+1. Um dot é criado para cada `.sg-slide`.
+2. O índice do slide é salvo em `data-index`.
+3. O primeiro slide inicia ativo, com dot ciano e `scale(1.3)`.
+4. Ao clicar em um dot, o slide e o dot atuais são desativados, o slide escolhido é ativado e o mapa Leaflet do slide de destino recebe `invalidateSize()` com delay de 100ms para redesenho correto.
+5. O avanço automático troca de slide a cada 15s, usando a regra `(currentSlide + 1) % slides.length`.
+6. O estado visual do dot deve sempre acompanhar a variável `currentSlide`, tanto no autoplay quanto no clique.
 
 ---
 
