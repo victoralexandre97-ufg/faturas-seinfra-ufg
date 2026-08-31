@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+﻿@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 :root {
   /* Core Tokens */
@@ -410,10 +410,29 @@ footer {
   color: var(--danger);
 }
 
-.pause-icon {
-  display: flex;
+.pause-icon,
+.playing-icon {
+  display: none;
   align-items: center;
   justify-content: center;
+}
+
+.pause-btn.active .pause-icon {
+  display: flex;
+}
+
+.pause-btn.playing .playing-icon {
+  display: flex;
+}
+
+.playing-icon {
+  width: 10px;
+  height: 10px;
+  min-width: 10px;
+  min-height: 10px;
+  border-radius: 50%;
+  background: var(--ok);
+  box-shadow: 0 0 8px rgba(0, 230, 118, 0.8);
 }
 
 .pause-icon svg {
@@ -428,17 +447,20 @@ footer {
   letter-spacing: 0.05em;
 }
 
+.pause-btn.playing {
+  color: var(--ok);
+  border-color: var(--ok);
+  background: rgba(0, 230, 118, 0.08);
+}
+
 .pause-btn.active .pause-paused-text {
   display: inline-block;
   color: var(--danger);
 }
 
-.pause-btn.playing .pause-icon {
-  display: none;
-}
-
 .pause-btn.playing .pause-playing-text {
   display: inline-block;
+  color: var(--ok);
 }
 
 /* Table */
