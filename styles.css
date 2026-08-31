@@ -286,6 +286,15 @@ footer {
   transition: all 0.3s ease;
 }
 
+.status-dot {
+  width: clamp(7px, 0.9vw, 11px);
+  height: clamp(7px, 0.9vw, 11px);
+  background-color: var(--ok);
+  border-radius: 50%;
+  box-shadow: 0 0 8px rgba(0, 230, 118, 0.8);
+  animation: pulse-dot 1.5s ease-in-out infinite;
+}
+
 /* Animations */
 @keyframes fadeUp {
   from {
