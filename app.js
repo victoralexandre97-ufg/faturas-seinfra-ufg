@@ -51,6 +51,23 @@ updateScreenSizeMode();
 const slides = document.querySelectorAll('.sg-slide');
 let currentSlide = 0;
 const slideDotsContainer = document.getElementById('slide-dots');
+let slideInterval = null;
+let isPaused = false;
+
+// Slideshow controls
+const pauseBtn = document.getElementById('pause-btn');
+
+pauseBtn.addEventListener('click', () => {
+    isPaused = !isPaused;
+    pauseBtn.classList.toggle('active', isPaused);
+    pauseBtn.classList.toggle('playing', !isPaused);
+    
+    if (isPaused) {
+        stopSlideInterval();
+    } else {
+        startSlideInterval();
+    }
+});
 
 function updateSlideDots(activeIndex) {
     Array.from(slideDotsContainer.children).forEach((dot, index) => {
@@ -60,6 +77,8 @@ function updateSlideDots(activeIndex) {
 }
 
 function activateSlide(nextIndex) {
+    if (isPaused) return;
+    
     slides[currentSlide].classList.remove('active');
     currentSlide = nextIndex;
     slides[currentSlide].classList.add('active');
@@ -81,9 +100,22 @@ slides.forEach((_, i) => {
 
 updateSlideDots(currentSlide);
 
-setInterval(() => {
-    activateSlide((currentSlide + 1) % slides.length);
-}, 15000); // 15s per slide
+function startSlideInterval() {
+    slideInterval = setInterval(() => {
+        if (!isPaused) {
+            activateSlide((currentSlide + 1) % slides.length);
+        }
+    }, 15000); // 15s per slide
+}
+
+function stopSlideInterval() {
+    if (slideInterval) {
+        clearInterval(slideInterval);
+        slideInterval = null;
+    }
+}
+
+startSlideInterval();
 
 // Data Fetching and Chart Rendering
 async function init() {

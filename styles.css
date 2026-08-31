@@ -374,6 +374,83 @@ footer {
   letter-spacing: 0.08em;
 }
 
+/* Slideshow Controls */
+.slideshow-controls {
+  position: absolute;
+  top: 16px;
+  right: 24px;
+  z-index: 1000;
+}
+
+.pause-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: var(--text2);
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.pause-btn:hover {
+  background: rgba(0, 212, 255, 0.1);
+  border-color: var(--cyan);
+  color: var(--cyan);
+}
+
+.pause-btn.active {
+  background: rgba(255, 68, 68, 0.1);
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.pause-btn.active .pause-text {
+  color: var(--danger);
+}
+
+.pause-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pause-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.pause-text {
+  display: none;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.pause-btn.active .pause-text {
+  display: inline-block;
+}
+
+.pause-btn:not(.active) .pause-text {
+  display: none;
+}
+
+.pause-btn.playing .pause-icon {
+  display: none;
+}
+
+.pause-btn.playing .pause-text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* Table */
 table {
   width: 100%;
