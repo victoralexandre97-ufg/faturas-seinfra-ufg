@@ -4,6 +4,7 @@ import json
 import unicodedata
 import re
 import os
+from datetime import datetime, timezone
 
 def normalize_column_name(col):
     col = str(col).strip().upper()
@@ -45,6 +46,18 @@ def main():
             json.dump(data, f, ensure_ascii=False, indent=2)
 
         print(f"Arquivo {output_file} gerado com sucesso!")
+
+    # Record the last modification time of each source xlsx
+    update_info = {}
+    for file_path in files:
+        base_name = os.path.splitext(os.path.basename(file_path))[0]
+        mtime = os.path.getmtime(file_path)
+        update_info[base_name] = {
+            "modifiedAt": datetime.fromtimestamp(mtime, tz=timezone.utc).isoformat()
+        }
+    with open('update_info.json', 'w', encoding='utf-8') as f:
+        json.dump(update_info, f, ensure_ascii=False, indent=2)
+    print("update_info.json gerado com sucesso!")
 
 if __name__ == "__main__":
     main()

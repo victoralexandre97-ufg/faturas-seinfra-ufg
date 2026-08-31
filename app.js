@@ -118,17 +118,32 @@ function stopSlideInterval() {
 startSlideInterval();
 
 // Data Fetching and Chart Rendering
+function displayUpdateTimestamp(isoString) {
+    const el = document.getElementById('update-timestamp');
+    if (!el || !isoString) return;
+    const date = new Date(isoString);
+    if (isNaN(date.getTime())) return;
+    const monthNames = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'];
+    const time = date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    el.textContent = `${String(date.getDate()).padStart(2, '0')}/${monthNames[date.getMonth()]}/${date.getFullYear()} ÀS ${time}`;
+}
+
 async function init() {
     try {
         // Busca as faturas e os dados de endereço
-        const [resF, resAddr] = await Promise.all([
+        const [resF, resAddr, resInfo] = await Promise.all([
             fetch('./f_2026.json'),
-            fetch('./d_Enderecos.json')
+            fetch('./d_Enderecos.json'),
+            fetch('./update_info.json').catch(() => null)
         ]);
         const dataF = await resF.json();
         console.log('Dados f_2026 carregados:', dataF);
         const addressData = await resAddr.json();
         console.log('Dados d_Enderecos carregados:', addressData);
+        if (resInfo) {
+            const info = await resInfo.json();
+            displayUpdateTimestamp(info && info.f_2026 && info.f_2026.modifiedAt);
+        }
         // Bug #1 fix: f_2026.json é uma lista plana (não um dict com chave 'f_Faturas')
         faturas = Array.isArray(dataF) ? dataF : (dataF['f_Faturas'] || []);
         // Construir mapa de endereços
