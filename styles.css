@@ -376,10 +376,8 @@ footer {
 
 /* Slideshow Controls */
 .slideshow-controls {
-  position: absolute;
-  top: 16px;
-  right: 24px;
-  z-index: 1000;
+  display: flex;
+  align-items: center;
 }
 
 .pause-btn {
@@ -389,14 +387,15 @@ footer {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid var(--border);
   border-radius: 8px;
-  padding: 8px 12px;
+  padding: 5px 10px;
   color: var(--text2);
   font-family: 'Inter', sans-serif;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
   backdrop-filter: blur(10px);
+  white-space: nowrap;
 }
 
 .pause-btn:hover {
@@ -408,10 +407,6 @@ footer {
 .pause-btn.active {
   background: rgba(255, 68, 68, 0.1);
   border-color: var(--danger);
-  color: var(--danger);
-}
-
-.pause-btn.active .pause-text {
   color: var(--danger);
 }
 
@@ -433,22 +428,17 @@ footer {
   letter-spacing: 0.05em;
 }
 
-.pause-btn.active .pause-text {
+.pause-btn.active .pause-paused-text {
   display: inline-block;
-}
-
-.pause-btn:not(.active) .pause-text {
-  display: none;
+  color: var(--danger);
 }
 
 .pause-btn.playing .pause-icon {
   display: none;
 }
 
-.pause-btn.playing .pause-text {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.pause-btn.playing .pause-playing-text {
+  display: inline-block;
 }
 
 /* Table */
