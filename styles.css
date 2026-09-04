@@ -392,11 +392,15 @@ footer {
 .pause-btn {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
+  min-width: 220px;
+  height: 34px;
+  box-sizing: border-box;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid var(--border);
   border-radius: 8px;
-  padding: 5px 10px;
+  padding: 5px 12px;
   color: var(--text2);
   font-family: 'Inter', sans-serif;
   font-size: 12px;
