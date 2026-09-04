@@ -146,6 +146,38 @@ async function init() {
         }
         // Bug #1 fix: dados_faturas.json é uma lista plana (não um dict com chave 'f_Faturas')
         faturas = Array.isArray(dataF) ? dataF : (dataF['f_Faturas'] || []);
+        // Normalização completa: converte chaves para UPPER e mapeia nomes legados
+        faturas = faturas.map((f) => {
+            const n = {};
+            // 1. Chaves para Maiúsculas
+            for (const [k, v] of Object.entries(f || {})) {
+                n[String(k).toUpperCase()] = v;
+            }
+            
+            // 2. Mapeamento de nomes de campos (novo -> antigo esperado pelo front)
+            if (n.COMPETENCIA && !n.REFERENCIA_MES_ANO) {
+                // Converte "2026-01" ou similar para "JAN/2026" se necessário
+                // O dashboard usa o formato "JAN/2026" para ordenação e labels
+                const partes = n.COMPETENCIA.split('-');
+                if (partes.length === 2) {
+                    const mesesMap = {'01':'JAN','02':'FEV','03':'MAR','04':'ABR','05':'MAI','06':'JUN','07':'JUL','08':'AGO','09':'SET','10':'OUT','11':'NOV','12':'DEZ'};
+                    n.REFERENCIA_MES_ANO = `${mesesMap[partes[1]]}/${partes[0]}`;
+                } else {
+                    n.REFERENCIA_MES_ANO = n.COMPETENCIA;
+                }
+            }
+            
+            if (n.ID_UC && !n.NUMERO_UNIDADE_CONSUMIDORA) n.NUMERO_UNIDADE_CONSUMIDORA = n.ID_UC;
+            if (n.VALOR_TOTAL != null) n.VALOR_TOTAL = parseFloat(n.VALOR_TOTAL) || 0;
+            
+            // Consumo (Soma os campos do extrator para as chaves que o front usa)
+            if (n.CONSUMO_QUANTIDADE != null) n.CONSUMO_QUANTIDADE = parseFloat(n.CONSUMO_QUANTIDADE) || 0;
+            if (n.CONSUMO_P_QUANTIDADE != null) n.CONSUMO_P_QUANTIDADE = parseFloat(n.CONSUMO_P_QUANTIDADE) || 0;
+            if (n.CONSUMO_FP_QUANTIDADE != null) n.CONSUMO_FP_QUANTIDADE = parseFloat(n.CONSUMO_FP_QUANTIDADE) || 0;
+            if (n.CONSUMO_HR_QUANTIDADE != null) n.CONSUMO_HR_QUANTIDADE = parseFloat(n.CONSUMO_HR_QUANTIDADE) || 0;
+
+            return n;
+        });
         // Construir mapa de endereços
         addressMap.clear();
         addressData.forEach(addr => {
