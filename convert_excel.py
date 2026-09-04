@@ -6,6 +6,9 @@ import re
 import os
 from datetime import datetime, timezone
 
+# LEGADO: fluxo principal agora usa dados_faturas.json do servidor.
+# Mantido só por compatibilidade histórica.
+
 def normalize_column_name(col):
     col = str(col).strip().upper()
     col = ''.join(c for c in unicodedata.normalize('NFD', col) if unicodedata.category(c) != 'Mn')

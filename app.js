@@ -132,19 +132,19 @@ async function init() {
     try {
         // Busca as faturas e os dados de endereço
         const [resF, resAddr, resInfo] = await Promise.all([
-            fetch('./f_2026.json'),
+            fetch('./dados_faturas.json'),
             fetch('./d_Enderecos.json'),
             fetch('./update_info.json').catch(() => null)
         ]);
         const dataF = await resF.json();
-        console.log('Dados f_2026 carregados:', dataF);
+        console.log('Dados dados_faturas carregados:', dataF);
         const addressData = await resAddr.json();
         console.log('Dados d_Enderecos carregados:', addressData);
         if (resInfo) {
             const info = await resInfo.json();
-            displayUpdateTimestamp(info && info.f_2026 && info.f_2026.modifiedAt);
+            displayUpdateTimestamp(info && info.dados_faturas && info.dados_faturas.modifiedAt);
         }
-        // Bug #1 fix: f_2026.json é uma lista plana (não um dict com chave 'f_Faturas')
+        // Bug #1 fix: dados_faturas.json é uma lista plana (não um dict com chave 'f_Faturas')
         faturas = Array.isArray(dataF) ? dataF : (dataF['f_Faturas'] || []);
         // Construir mapa de endereços
         addressMap.clear();

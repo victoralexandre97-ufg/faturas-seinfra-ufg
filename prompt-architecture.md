@@ -23,14 +23,14 @@ Repositórios "irmãos" seguem o mesmo padrão visual:
 | `index.html` | Estrutura/marcação da página (sem dados) |
 | `styles.css` | TODO o visual (tokens, layout, componentes, responsividade) |
 | `app.js` | Relógio, slideshow, fetch dos JSON, KPIs, gráficos, mapa |
-| `f_2026.json` | Dados das faturas (gerado por script) |
+| `dados_faturas.json` | Dados das faturas (fonte principal do painel) |
 | `d_Enderecos.json` | Dados de endereço/geolocalização (gerado por script) |
-| `update_info.json` | Timestamp da última modificação das planilhas (gerado por script) |
-| `f_2026.xlsx`, `d_Enderecos.xlsx` | Fontes de dados originais |
-| `convert_excel.py` | Converte `.xlsx` → `.json` + gera `update_info.json` |
+| `update_info.json` | Timestamp da última modificação dos dados |
+| `d_Enderecos.xlsx` | Fonte histórica/legado dos endereços |
+| `sync_dados_faturas.py` | Sincroniza `dados_faturas.json` do servidor para o repo |
 | `simulate_js.py` | Depuração: simula em Python o que `app.js` calcula |
 | `DESIGN.md` | Especificação visual detalhada do design system |
-| `.github/workflows/excel_to_json.yml` | CI: converte xlsx → json quando há novas planilhas |
+| `.github/workflows/sync_dados_faturas.yml` | CI: valida `dados_faturas.json` em push |
 
 ---
 
@@ -38,15 +38,14 @@ Repositórios "irmãos" seguem o mesmo padrão visual:
 
 O fluxo de atualização dos dados funciona assim:
 
-1. **Planilha-fonte** (`f_2026.xlsx`) é atualizada manualmente (Datasus/Enel, etc).
-2. **`convert_excel.py`** lê **todos** os `.xlsx` da raiz e gera:
-   - `{nome}.json` (lista de registros)
-   - `update_info.json` — contém `modifiedAt` (data/hora da **modificação da planilha** no sistema de arquivos), usada no rodapé.
-3. **GitHub Actions** (`.github/workflows/excel_to_json.yml`) roda automaticamente a cada `push` que altere arquivos `*.xlsx`, converte e faz commit dos JSON gerados. Isso mantém o Pages atualizado.
+1. **Extrator no servidor** atualiza `\\SERVIDOR\Dir. Manutenção\Estagiários\Victor Lemes\FATURAS UFG\DADOS JSON\dados_faturas.json`.
+2. **`sync_dados_faturas.py`** compara o JSON do servidor com o JSON do clone local do repo.
+3. Se houver diferença, o script copia, atualiza `update_info.json`, faz `git add/commit/push`.
+4. **GitHub Actions** roda a cada `push` que altere `dados_faturas.json` e valida estrutura/conteúdo.
 
-### Como rodar localmente
+### Como sincronizar localmente
 ```bash
-python convert_excel.py
+python sync_dados_faturas.py
 ```
 
 ### Como rodar a simulação de cálculo (depuração)
@@ -54,9 +53,9 @@ python convert_excel.py
 python simulate_js.py
 ```
 
-> ⚠️ **Regra:** os `.json` são **gerados**, não editados à mão. Qualquer correção estrutural nos dados deve ser feita no `.xlsx` ou no `convert_excel.py`, e os JSON regenerados.
+> ⚠️ **Regra:** `dados_faturas.json` é gerado no servidor e sincronizado para o repo. Não editar à mão. Correção estrutural deve ser feita no extrator do servidor ou no sync script.
 
-### Estrutura do JSON gerado (`f_2026.json`)
+### Estrutura do JSON gerado (`dados_faturas.json`)
 É uma **lista plana** de objetos (não um dict com chave `f_Faturas`). Chaves ficam em **MAIÚSCULAS** e sem acentos (normalizadas pelo script):
 
 - `ID_UC` — unidade consumidora
@@ -115,7 +114,7 @@ Estrutura em 3 blocos:
   - `active` / pausado: ícone de pause + texto "PAUSADO" em vermelho (`--danger`)
 
 #### Lógica de dados (`init()`)
-1. Usa `Promise.all` para buscar `f_2026.json`, `d_Enderecos.json` e `update_info.json` (o último com `catch(() => null)`, pois é opcional).
+1. Usa `Promise.all` para buscar `dados_faturas.json`, `d_Enderecos.json` e `update_info.json` (o último com `catch(() => null)`, pois é opcional).
 2. Monta `addressMap` (mapeia UC → registro de endereço pelas chaves nova/antiga) e **enriquece** cada fatura com `f._address`.
 3. Calcula KPIs, agrega evolução por `REFERENCIA_MES_ANO`, top 5 UCs, grupos tarifários, composição de impostos.
 4. Cria os gráficos Chart.js e inicializa o mapa Leaflet com marcadores `L.divIcon`.
@@ -198,7 +197,7 @@ Ao receber uma tarefa para este projeto:
    - CI → `.github/workflows/excel_to_json.yml`
 3. **Siga as convenções:** tokens de cor, fontes existentes, classes existentes. Não invente tokens novos.
 4. **Respeite as armadilhas conhecidas:**
-   - `update_info.json` / `d_Enderecos.json` / `f_2026.json` são **gerados** — não editá-los à mão.
+   - `update_info.json` / `d_Enderecos.json` / `dados_faturas.json` são **gerados** — não editá-los à mão.
    - Chaves de dados em Maiúsculas (`VALOR_TOTAL`, `ID_UC`, etc.).
    - Botão play/pause fica **no rodapé central**.
    - `.status-dot` (header) deve **pulsar verde**; `.pulse-dot` (dots de slides) **não**.

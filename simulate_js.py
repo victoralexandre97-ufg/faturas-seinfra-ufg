@@ -1,6 +1,6 @@
 import json
 
-f = json.load(open('f_2026.json', encoding='utf-8'))
+f = json.load(open('dados_faturas.json', encoding='utf-8'))
 e = json.load(open('d_Enderecos.json', encoding='utf-8'))
 
 # Simula o que o app.js faz
