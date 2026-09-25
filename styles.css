@@ -190,6 +190,7 @@ footer {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  overflow: hidden;
 }
 
 .sg-slide.active {
@@ -209,6 +210,7 @@ footer {
   grid-template-columns: 1fr 1fr;
   gap: 16px;
   flex: 1;
+  min-height: 0;
 }
 
 /* Cards */
@@ -256,6 +258,8 @@ footer {
   border: 1px solid var(--border);
   display: flex;
   flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .chart-container {
@@ -509,16 +513,23 @@ td {
   width: 100% !important;
   height: 100% !important;
   border-radius: 8px;
+  outline: none !important;
 }
 
 .leaflet-container {
   background: var(--surface2) !important;
   width: 100% !important;
   height: 100% !important;
+  outline: none !important;
 }
 
-.leaflet-pane .bright-labels .leaflet-tile {
-  filter: brightness(2.2) contrast(1.15) saturate(0.6);
+.leaflet-control-attribution {
+  background: rgba(17, 17, 24, 0.8) !important;
+  color: var(--text3) !important;
+}
+
+.leaflet-control-attribution a {
+  color: var(--text2) !important;
 }
 
 .custom-div-icon {
