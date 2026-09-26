@@ -391,18 +391,9 @@ async function init() {
         const map = L.map('map', { zoomControl: false }).setView([-16.68, -49.25], 11);
         window.map = map;
 
-        const cartoKey = window.CARTO_API_KEY || '';
-        const tileUrl = cartoKey
-            ? `https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png?key=${cartoKey}`
-            : 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}';
-
-        const tileAttribution = cartoKey
-            ? '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>'
-            : '&copy; <a href="https://www.esri.com/">Esri</a> &mdash; Esri, DeLorme, NAVTEQ';
-
-        L.tileLayer(tileUrl, {
-            attribution: tileAttribution,
-            maxZoom: 16
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            maxZoom: 19
         }).addTo(map);
 
         const mapElement = document.getElementById('map');

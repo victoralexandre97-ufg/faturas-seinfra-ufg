@@ -523,6 +523,11 @@ td {
   outline: none !important;
 }
 
+/* Filtro escuro para tiles do OpenStreetMap */
+.leaflet-tile-pane {
+  filter: invert(1) hue-rotate(180deg) brightness(0.9) contrast(0.9);
+}
+
 .leaflet-control-attribution {
   background: rgba(17, 17, 24, 0.8) !important;
   color: var(--text3) !important;
@@ -538,10 +543,11 @@ td {
 }
 
 .custom-div-icon .map-marker {
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
-  background: var(--cyan);
-  border: 2px solid #ffffff;
+  background: var(--blue);
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 0 6px rgba(75, 139, 255, 0.4);
   position: relative;
 }

@@ -290,9 +290,9 @@ Definido em `app.js` como `L.divIcon` (classe `custom-div-icon`), usado nos dois
 | Propriedade | Valor |
 |-------------|-------|
 | Formato | Círculo (`border-radius: 50%`) |
-| Tamanho | `16px × 16px` |
-| Cor de fundo | `--cyan` (`#00D4FF`) |
-| Borda | `2px solid #fff` |
+| Tamanho | `14px × 14px` |
+| Cor de fundo | `--blue` (`#4B8BFF`) |
+| Borda | `2px solid rgba(255, 255, 255, 0.7)` |
 | Glow | nenhum |
 | Âncora | Centro do ponto (`iconAnchor: [8, 8]`) |
 
